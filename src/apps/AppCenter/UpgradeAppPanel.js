@@ -9,60 +9,61 @@ import {
   SidePanelSeparator,
   SidePanelSplit,
 } from '@aragon/ui'
-import { AppType } from '../../prop-types'
+import { RepoType } from '../../prop-types'
 import { TextLabel } from '../../components/TextStyles'
 import { GU } from '../../utils'
 
 class UpgradeAppPanel extends React.PureComponent {
   static propTypes = {
-    app: AppType,
+    repo: RepoType,
     onClose: PropTypes.func.isRequired,
   }
   state = {
-    app: null,
+    repo: null,
   }
   static getDerivedStateFromProps(props, state) {
-    if (props.app !== state.app && props.app) {
-      return { app: props.app }
+    if (props.repo !== state.repo && props.repo) {
+      return { repo: props.repo }
     }
     return {}
   }
   render() {
-    const { app } = this.state
-    const { app: propsApp, onClose } = this.props
+    const { repo } = this.state
+    const { repo: propsRepo, onClose } = this.props
 
-    if (!app) {
+    if (!repo) {
       return null
     }
 
-    const { name, versions, version, sourceUrl } = app
-    const currentVersion = versions.find(({ name }) => version === name)
-    const latestVersion = versions[0]
+    const { currentVersion, latestVersion } = repo
+    const {
+      name,
+      changelog_url: changelogUrl,
+      source_url: sourceUrl,
+    } = repo.latestVersion.content
 
     return (
       <SidePanel
         title={`Upgrade “${name || 'Unknown'}”`}
-        opened={Boolean(propsApp)}
+        opened={Boolean(propsRepo)}
         onClose={onClose}
       >
         <SidePanelSplit>
           <div>
             <Heading2>Current version</Heading2>
-            <div>{currentVersion.name}</div>
+            <div>{currentVersion.version}</div>
           </div>
           <div>
             <Heading2>New version</Heading2>
-            <div>{latestVersion.name}</div>
+            <div>{latestVersion.version}</div>
           </div>
         </SidePanelSplit>
 
         <Part>
           <Heading2>Changelog</Heading2>
           <p>
-            {latestVersion.changelogUrl ? (
-              <SafeLink href={latestVersion.changelogUrl}>
-                {latestVersion.changelogUrl}
-              </SafeLink>
+            {changelogUrl ? (
+              <SafeLink href={changelogUrl}>{changelogUrl}</SafeLink>
             ) : (
               'There is no changelog for this version.'
             )}
@@ -98,7 +99,8 @@ class UpgradeAppPanel extends React.PureComponent {
           </div>
 
           <Info.Action>
-            All the “{name}” app instances will be upgraded.
+            All the “{name}” app instances installed on your organization will
+            be upgraded.
           </Info.Action>
         </Part>
       </SidePanel>
