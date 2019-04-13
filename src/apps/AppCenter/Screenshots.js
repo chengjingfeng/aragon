@@ -1,11 +1,17 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { theme } from '@aragon/ui'
-import { GU } from '../../utils'
+import { RepoType } from '../../prop-types'
+import { GU, imgSrcFromBase } from '../../utils'
 
 class Screenshots extends React.Component {
   static propTypes = {
-    screenshots: PropTypes.arrayOf(PropTypes.string),
+    repo: RepoType.isRequired,
+    screenshots: PropTypes.arrayOf(
+      PropTypes.shape({
+        src: PropTypes.string.isRequired,
+      })
+    ).isRequired,
   }
   state = {
     currentScreenshot: -1,
@@ -17,7 +23,10 @@ class Screenshots extends React.Component {
     this.setState({ currentScreenshot: -1 })
   }
   render() {
-    const { screenshots } = this.props
+    const {
+      screenshots,
+      repo: { baseUrl },
+    } = this.props
     return (
       <div
         css={`
@@ -31,11 +40,11 @@ class Screenshots extends React.Component {
             padding-bottom: ${3 * GU}px;
           `}
         >
-          {screenshots.map((url, index) => (
+          {screenshots.map(({ src }, index) => (
             <img
               onClick={() => this.open(index)}
-              key={url}
-              src={url}
+              key={src}
+              src={imgSrcFromBase(baseUrl, src)}
               alt=""
               width="198"
               height="120"
