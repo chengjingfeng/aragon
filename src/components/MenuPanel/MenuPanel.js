@@ -16,7 +16,7 @@ import { staticApps } from '../../static-apps'
 import MenuPanelFooter from './MenuPanelFooter'
 import MenuPanelAppGroup from './MenuPanelAppGroup'
 import MenuPanelAppsLoader from './MenuPanelAppsLoader'
-import NotificationAlert from '../Notifications/NotificationAlert'
+import ActivityAlert from '../Activity/ActivityAlert'
 import OrganizationSwitcher from './OrganizationSwitcher/OrganizationSwitcher'
 import AppIcon from '../AppIcon/AppIcon'
 import IconArrow from '../../icons/IconArrow'
@@ -74,12 +74,13 @@ class MenuPanel extends React.PureComponent {
     appsStatus: AppsStatusType.isRequired,
     connected: PropTypes.bool.isRequired,
     daoAddress: DaoAddressType.isRequired,
-    notifications: PropTypes.number,
-    onNotificationClicked: PropTypes.func.isRequired,
+    activitiesOpen: PropTypes.bool.isRequired,
+    onActivityClicked: PropTypes.func.isRequired,
     onOpenApp: PropTypes.func.isRequired,
     onOpenPreferences: PropTypes.func.isRequired,
     onRequestAppsReload: PropTypes.func.isRequired,
     onRequestEnable: PropTypes.func.isRequired,
+    unreadActivityCount: PropTypes.number,
     viewportHeight: PropTypes.number,
   }
 
@@ -136,13 +137,14 @@ class MenuPanel extends React.PureComponent {
   render() {
     const {
       account,
+      activitiesOpen,
       apps,
       connected,
       daoAddress,
-      onNotificationClicked,
+      onActivityClicked,
       onOpenPreferences,
       onRequestEnable,
-      notifications,
+      unreadActivityCount,
     } = this.props
     const { animate, scrollVisible, systemAppsOpened } = this.state
     const appGroups = this.getAppGroups(apps)
@@ -155,16 +157,21 @@ class MenuPanel extends React.PureComponent {
       <Main>
         <In>
           <Header>
-            <OrganizationSwitcher
-              currentDao={{
-                name: daoAddress.domain,
-                address: daoAddress.address,
-              }}
-            />
-            <NotificationAlert
-              notifications={notifications}
-              onClick={onNotificationClicked}
-            />
+            <HeaderSlot css="width: 170px">
+              <OrganizationSwitcher
+                currentDao={{
+                  name: daoAddress.domain,
+                  address: daoAddress.address,
+                }}
+              />
+            </HeaderSlot>
+            <HeaderSlot css="width: 50px">
+              <ActivityAlert
+                unreadActivityCount={unreadActivityCount}
+                onClick={onActivityClicked}
+                activitiesOpen={activitiesOpen}
+              />
+            </HeaderSlot>
           </Header>
           <Content ref={this._contentRef}>
             <div className="in" ref={this._innerContentRef}>
@@ -506,25 +513,14 @@ const Header = styled.div`
   flex-shrink: 0;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 0 20px;
   height: 64px;
   border-bottom: 1px solid ${theme.contentBorder};
+`
 
-  .actions {
-    display: flex;
-  }
-  .actions a {
-    display: flex;
-    align-items: center;
-    margin-left: 10px;
-    color: ${theme.textSecondary};
-    cursor: pointer;
-    outline: 0;
-  }
-  .actions a:hover {
-    color: ${theme.textPrimary};
-  }
+const HeaderSlot = styled.div`
+  height: 100%;
+  display: flex;
+  align-items: center;
 `
 
 const Content = styled.nav`
