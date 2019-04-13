@@ -1,4 +1,5 @@
 import resolvePathname from 'resolve-pathname'
+import defaultAppIcon from './assets/default-app-icon.svg'
 
 // Stealing this from recompose / etc for now
 export function compose(...funcs) {
@@ -15,9 +16,12 @@ export function compose(...funcs) {
 
 // Get the icon URL of an app
 export function appIconUrl(app) {
-  return app && app.baseUrl
-    ? resolvePathname('images/icon.svg', app.baseUrl)
-    : null
+  if (app && app.baseUrl && Array.isArray(app.icons)) {
+    const iconSize =
+      app.icons.find(({ sizes }) => sizes === '22x22') || app.icons[0]
+    return resolvePathname(removeStartingSlash(iconSize.src), app.baseUrl)
+  }
+  return defaultAppIcon
 }
 
 export function isElectron() {
@@ -49,3 +53,6 @@ export function log(...params) {
 export function isString(str) {
   return typeof str === 'string' || str instanceof String
 }
+
+// GU = Grid Unit
+export const GU = 8
